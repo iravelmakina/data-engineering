@@ -1,0 +1,10 @@
+# DuckDB database files
+*.db
+*.duckdb
+
+# Dataset — too large for GitHub (1.95 GB)
+# Download from: https://www.kaggle.com/datasets/xvivancos/tweets-during-r-madrid-vs-liverpool-ucl-2018
+*.json
+
+# IDE
+.idea/
