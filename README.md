@@ -166,6 +166,70 @@ The DAG must:
 - Sample telephony JSON files
 - DuckDB output file
 - This completed assignment README
+
+---
+
+## Project Setup
+
+### Prerequisites
+- Docker installed and running
+- Astro CLI (`brew install astro`)
+- MySQL server running locally (port 3306)
+
+### 1. Create virtual environment and install seed dependencies
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install faker pymysql python-dotenv cryptography
+```
+
+### 2. Configure environment variables
+Create a `.env` file in the project root:
+```
+MYSQL_HOST=localhost
+MYSQL_USER=root
+MYSQL_PASSWORD=<your_password>
+MYSQL_PORT=3306
+```
+
+### 3. Run the seed script
+Populates MySQL with 50 employees + 120 calls and generates telephony JSON files:
+```bash
+python include/seed_data.py
+```
+
+### 4. Start Airflow
+```bash
+astro dev start
+```
+Airflow UI: http://localhost:8080 (login: `admin` / `admin`)
+
+### 5. Verify MySQL connection
+In the Airflow UI: Admin → Connections → check that `mysql_support` exists.
+
+### 6. Trigger the DAG
+In the Airflow UI: find `support_call_enrichment` → click the play button.
+
+### 7. Verify DuckDB output
+```bash
+brew install duckdb
+duckdb data/support_calls.duckdb
+```
+Then run:
+```sql
+SELECT COUNT(*) FROM support_call_enriched;
+SELECT * FROM support_call_enriched LIMIT 10;
+```
+
+### Useful commands
+| Command | Description |
+|---------|-------------|
+| `astro dev start` | Start Airflow containers |
+| `astro dev stop` | Stop Airflow containers |
+| `astro dev restart` | Restart (rebuilds with new requirements) |
+| `astro dev logs --scheduler` | View scheduler logs |
+| `astro dev run variables get last_loaded_call_time` | Check current watermark |
+
 ---
 
 ## Theory questions (Airflow)

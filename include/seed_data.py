@@ -75,7 +75,7 @@ def create_database(cursor):
             call_id INT PRIMARY KEY AUTO_INCREMENT,
             employee_id INT NOT NULL,
             call_time DATETIME NOT NULL,
-            phone VARCHAR(20) NOT NULL,
+            phone VARCHAR(50) NOT NULL,
             direction VARCHAR(10) NOT NULL,
             status VARCHAR(20) NOT NULL,
             FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
@@ -99,9 +99,12 @@ def seed_employees(cursor):
 
 
 def seed_calls(cursor):
-    base_time = datetime.now() - timedelta(hours=5)
+    # Spread calls from 3 hours ago to 3 hours ahead (360 min window).
+    # Past calls get picked up on first DAG run.
+    # Future calls get picked up by later hourly runs, demonstrating incremental logic.
+    base_time = datetime.now() - timedelta(hours=3)
     for i in range(NUM_CALLS):
-        call_time = base_time + timedelta(minutes=random.randint(0, 300))
+        call_time = base_time + timedelta(minutes=random.randint(0, 360))
         cursor.execute(
             "INSERT INTO calls (employee_id, call_time, phone, direction, status) VALUES (%s, %s, %s, %s, %s)",
             (
@@ -112,7 +115,7 @@ def seed_calls(cursor):
                 random.choice(STATUSES),
             ),
         )
-    print(f"Inserted {NUM_CALLS} calls.")
+    print(f"Inserted {NUM_CALLS} calls (spread from -3h to +3h).")
 
 
 def generate_telephony_json():
