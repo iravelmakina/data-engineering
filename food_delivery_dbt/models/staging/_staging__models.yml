@@ -5,12 +5,14 @@ models:
     description: "Cleaned customer dimension. One row per platform user."
     columns:
       - name: customer_id
-        description: "Unique platform user identifier."
+        description: "Unique platform user identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
       - name: email
         description: "Lowercased, trimmed email address."
+      - name: phone_number
+        description: "Standardized phone number."
       - name: signup_date
         description: "Date the customer first registered on the platform."
 
@@ -18,6 +20,7 @@ models:
     description: "Cleaned restaurant dimension. One row per restaurant."
     columns:
       - name: restaurant_id
+        description: "Unique restaurant identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -31,6 +34,7 @@ models:
     description: "Cleaned menu items. Each item belongs to one restaurant."
     columns:
       - name: menu_item_id
+        description: "Unique menu item identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -51,6 +55,7 @@ models:
     description: "Cleaned order headers. One row per placed order."
     columns:
       - name: order_id
+        description: "Unique order identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -73,7 +78,8 @@ models:
           - accepted_values:
               arguments:
                 values: ['placed', 'preparing', 'delivered', 'cancelled']
-      - name: order_timestamp
+      - name: ordered_at
+        description: "Timestamp when the order was placed."
         data_tests:
           - not_null
 
@@ -81,6 +87,7 @@ models:
     description: "Cleaned order line items. Many-to-one with orders and menu_items."
     columns:
       - name: order_item_id
+        description: "Unique order item identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -106,6 +113,7 @@ models:
     description: "Cleaned delivery records. One row per non-cancelled order."
     columns:
       - name: delivery_id
+        description: "Unique delivery identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -122,3 +130,7 @@ models:
           - accepted_values:
               arguments:
                 values: ['picked_up', 'in_transit', 'delivered', 'failed']
+      - name: picked_up_at
+        description: "Timestamp when the order was picked up from the restaurant."
+      - name: delivered_at
+        description: "Timestamp when the order was delivered to the customer."

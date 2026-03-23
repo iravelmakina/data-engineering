@@ -6,52 +6,68 @@
     )
 }}
 
-{# Line-level fact. Incremental filter is on the parent orders timestamp,
-   since order_items inherit their date from the order. #}
+{#
+    This model is incrementally loaded based on new order_item_ids.
+    We join to stg_orders to enrich the line item data with order-level details.
+    The incremental filter is applied to stg_order_items to ensure all new line items are captured.
+#}
 
-with new_orders as (
+with new_order_items as (
 
-    select order_id, customer_id, restaurant_id, order_timestamp, status
-    from {{ ref('stg_orders') }}
+    select *
+    from {{ ref('stg_order_items') }}
 
     {% if is_incremental() %}
-        where order_timestamp > (
-            select coalesce(max(order_timestamp), '1900-01-01'::timestamp) from {{ this }}
+        -- Filter for new order items based on their unique ID.
+        -- This ensures that even if an order is old, any new line items
+        -- added to it will be processed.
+        where cast(order_item_id as integer) > (
+            select coalesce(max(cast(order_item_id as integer)), 0) from {{ this }}
         )
     {% endif %}
 
 ),
 
-order_items as (
+orders as (
 
-    select * from {{ ref('stg_order_items') }}
+    select
+        order_id,
+        customer_id,
+        restaurant_id,
+        status,
+        ordered_at
+    from {{ ref('stg_orders') }}
 
 ),
 
 menu as (
 
-    select menu_item_id, item_name, category from {{ ref('stg_menu_items') }}
+    select
+        menu_item_id,
+        item_name,
+        category
+    from {{ ref('stg_menu_items') }}
 
 ),
 
 final as (
 
     select
-        oi.order_item_id,
-        oi.order_id,
+        noi.order_item_id,
+        noi.order_id,
         o.customer_id,
         o.restaurant_id,
-        oi.menu_item_id,
+        noi.menu_item_id,
         m.item_name,
         m.category,
-        o.order_timestamp,
-        oi.quantity,
-        oi.unit_price_usd,
-        oi.line_total_usd,
-        o.status as order_status
-    from new_orders o
-    join order_items oi on o.order_id = oi.order_id
-    left join menu m    on oi.menu_item_id = m.menu_item_id
+        noi.quantity,
+        noi.unit_price_usd,
+        noi.line_total_usd,
+        o.status as order_status,
+        o.ordered_at
+    from new_order_items noi
+    join orders o on noi.order_id = o.order_id
+    left join menu m    on noi.menu_item_id = m.menu_item_id
 
 )
 

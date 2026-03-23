@@ -10,7 +10,7 @@ with customer_daily_spend as (
 
     select
         customer_id,
-        cast(order_timestamp as date) as order_date,
+        cast(order_date as date) as order_date,
         sum(total_amount_usd) as daily_spend_usd
     from {{ ref('fct_orders') }}
     group by customer_id, 2
@@ -20,7 +20,7 @@ with customer_daily_spend as (
 final as (
 
     select
-        customer_id,
+        cast(customer_id as string) as customer_id,
         order_date,
         daily_spend_usd,
         avg(daily_spend_usd) over (

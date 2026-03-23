@@ -1,19 +1,19 @@
 with source as (
 
-    select * from {{ ref('raw_orders') }}
+    select * from {{ source('raw', 'raw_orders') }}
 
 ),
 
 renamed as (
 
     select
-        order_id,
-        customer_id,
-        restaurant_id,
-        order_timestamp,
-        {{ standardize_text('status') }}          as status,
-        cast(total_amount_usd as decimal(10, 2))  as total_amount_usd,
-        {{ standardize_text('payment_method') }}  as payment_method
+        cast(order_id as string)                 as order_id,
+        cast(customer_id as string)              as customer_id,
+        cast(restaurant_id as string)            as restaurant_id,
+        {{ standardize_text('status') }}         as status,
+        {{ standardize_text('payment_method') }} as payment_method,
+        cast(total_amount_usd as decimal(10, 2)) as total_amount_usd,
+        ordered_at
 
     from source
 

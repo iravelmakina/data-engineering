@@ -14,10 +14,10 @@ with restaurant_daily_orders as (
 
     select
         restaurant_id,
-        cast(order_timestamp as date) as order_date,
-        sum(total_amount_usd) as daily_revenue_usd
+        cast(ordered_at as date) as order_date,
+        sum(total_amount_usd)   as daily_revenue_usd
     from {{ ref('fct_orders') }}
-    group by restaurant_id, cast(order_timestamp as date)
+    group by restaurant_id, cast(ordered_at as date)
 
 ),
 

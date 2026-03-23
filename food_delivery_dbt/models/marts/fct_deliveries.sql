@@ -12,34 +12,24 @@ with deliveries as (
     from {{ ref('stg_deliveries') }}
 
     {% if is_incremental() %}
-        where delivery_timestamp > (
-            select coalesce(max(delivery_timestamp), '1900-01-01'::timestamp) from {{ this }}
+        where delivered_at > (
+            select coalesce(max(delivered_at), '1900-01-01'::timestamp) from {{ this }}
         )
     {% endif %}
-
-),
-
-couriers as (
-
-    select
-        courier_id,
-        courier_name
-    from {{ ref('dim_couriers') }}
 
 ),
 
 final as (
 
     select
-        d.delivery_id,
-        d.order_id,
-        c.courier_id, -- Get courier_id from dim_couriers
-        d.delivery_timestamp,
-        d.delivery_status,
-        d.delivery_duration_min,
-        d.distance_km
-    from deliveries d
-    left join couriers c on d.courier_name = c.courier_name
+        delivery_id,
+        order_id,
+        courier_id,
+        delivery_status,
+        delivery_duration_min,
+        distance_km,
+        delivered_at
+    from deliveries
 
 )
 

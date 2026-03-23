@@ -5,7 +5,7 @@ models:
     description: "Customer dimension enriched with lifetime order metrics."
     columns:
       - name: customer_id
-        description: "Primary key. Unique platform user identifier."
+        description: "Primary key. Unique platform user identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -20,6 +20,7 @@ models:
     description: "Restaurant dimension enriched with order volume and revenue."
     columns:
       - name: restaurant_id
+        description: "Unique restaurant identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -35,6 +36,7 @@ models:
     description: "Menu item dimension enriched with quantity sold and revenue."
     columns:
       - name: menu_item_id
+        description: "Unique menu item identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -53,7 +55,7 @@ models:
     description: "Courier dimension. Surrogate key derived from courier_name (no ID in source)."
     columns:
       - name: courier_id
-        description: "md5(courier_name) - stable surrogate key."
+        description: "md5(courier_name) - stable surrogate key (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -68,6 +70,7 @@ models:
     description: "Fact table for individual orders, enriched with customer, restaurant, and delivery details."
     columns:
       - name: order_id
+        description: "Unique order identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -85,7 +88,12 @@ models:
               arguments:
                 to: ref('dim_restaurants')
                 field: restaurant_id
-      - name: order_timestamp
+      - name: ordered_at
+        description: "Timestamp when the order was placed."
+        data_tests:
+          - not_null
+      - name: order_date
+        description: "Date of the order."
         data_tests:
           - not_null
       - name: total_amount_usd
@@ -93,9 +101,10 @@ models:
           - not_null
 
   - name: fct_order_items
-    description: "Fact table for individual order line items, enriched with order and menu item details."
+    description: "Fact table for individual order line items, enriched with order and menu item details. Incremental load based on order_item_id."
     columns:
       - name: order_item_id
+        description: "Unique order item identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -124,6 +133,7 @@ models:
     description: "Fact table for deliveries, capturing delivery metrics."
     columns:
       - name: delivery_id
+        description: "Unique delivery identifier (Cast to STRING)."
         data_tests:
           - unique
           - not_null
@@ -141,7 +151,8 @@ models:
               arguments:
                 to: ref('dim_couriers')
                 field: courier_id
-      - name: delivery_timestamp
+      - name: delivered_at
+        description: "Timestamp when the order was delivered."
         data_tests:
           - not_null
       - name: delivery_status
@@ -155,7 +166,7 @@ models:
           - not_null
 
   - name: fct_daily_revenue
-    description: "Daily aggregated revenue, including running totals."
+    description: "Daily aggregated revenue, including running totals. Uses delete+insert with a 7-day lookback."
     columns:
       - name: revenue_date
         data_tests:
@@ -169,7 +180,7 @@ models:
           - not_null
 
   - name: fct_restaurant_daily
-    description: "Daily aggregated revenue per restaurant."
+    description: "Daily aggregated revenue per restaurant. Uses delete+insert with a 7-day lookback and predicate."
     columns:
       - name: restaurant_id
         data_tests:

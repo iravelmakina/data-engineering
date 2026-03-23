@@ -9,10 +9,10 @@
 with customer_first_order as (
 
     select
-        customer_id,
-        min(cast(order_timestamp as date)) as first_order_date
+        cast(customer_id as string) as customer_id,
+        min(cast(ordered_at as date)) as first_order_date
     from {{ ref('fct_orders') }}
-    group by customer_id
+    group by 1
 
 ),
 

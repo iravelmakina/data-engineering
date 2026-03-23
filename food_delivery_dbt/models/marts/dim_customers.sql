@@ -8,10 +8,10 @@ orders_agg as (
 
     select
         customer_id,
-        count(*)                                                        as total_orders,
-        sum(total_amount_usd) filter (where status = 'delivered')       as lifetime_revenue_usd,
-        min(order_timestamp)                                            as first_order_at,
-        max(order_timestamp)                                            as last_order_at
+        count(*)                                                  as total_orders,
+        sum(total_amount_usd) filter (where status = 'delivered') as lifetime_revenue_usd,
+        min(ordered_at)                                           as first_order_at,
+        max(ordered_at)                                           as last_order_at
     from {{ ref('stg_orders') }}
     group by 1
 
@@ -24,10 +24,10 @@ final as (
         c.first_name,
         c.last_name,
         c.email,
-        c.phone,
+        c.phone_number,
+        c.city,
         c.signup_date,
         extract(year from c.signup_date)            as signup_year,
-        c.city,
         coalesce(o.total_orders, 0)                 as total_orders,
         coalesce(o.lifetime_revenue_usd, 0)         as lifetime_revenue_usd,
         o.first_order_at,

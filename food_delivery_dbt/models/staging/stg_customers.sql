@@ -1,19 +1,19 @@
 with source as (
 
-    select * from {{ ref('raw_customers') }}
+    select * from {{ source('raw', 'raw_customers') }}
 
 ),
 
 renamed as (
 
     select
-        customer_id,
+        cast(customer_id as string)          as customer_id,
         {{ standardize_text('first_name') }} as first_name,
         {{ standardize_text('last_name') }}  as last_name,
         {{ standardize_text('email') }}      as email,
-        phone,
-        signup_date,
-        {{ standardize_text('city') }}       as city
+        {{ standardize_text('phone') }}      as phone_number,
+        {{ standardize_text('city') }}       as city,
+        signup_date
 
     from source
 

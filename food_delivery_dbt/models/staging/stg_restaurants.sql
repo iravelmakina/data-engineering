@@ -1,19 +1,19 @@
 with source as (
 
-    select * from {{ ref('raw_restaurants') }}
+    select * from {{ source('raw', 'raw_restaurants') }}
 
 ),
 
 renamed as (
 
     select
-        restaurant_id,
+        cast(restaurant_id as string)           as restaurant_id,
         {{ standardize_text('name') }}          as restaurant_name,
         {{ standardize_text('cuisine_type') }}  as cuisine_type,
         {{ standardize_text('city') }}          as city,
         cast(rating as decimal(3, 2))           as rating,
-        opened_date,
-        is_active
+        is_active,
+        opened_date
 
     from source
 

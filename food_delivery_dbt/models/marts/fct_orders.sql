@@ -11,8 +11,8 @@ with orders as (
     select * from {{ ref('stg_orders') }}
 
     {% if is_incremental() %}
-        where order_timestamp > (
-            select coalesce(max(order_timestamp), '1900-01-01'::timestamp) from {{ this }}
+        where ordered_at > (
+            select coalesce(max(ordered_at), '1900-01-01'::timestamp) from {{ this }}
         )
     {% endif %}
 
@@ -46,16 +46,17 @@ final as (
         o.order_id,
         o.customer_id,
         o.restaurant_id,
-        o.order_timestamp,
-        cast(o.order_timestamp as date)            as order_date,
         o.status,
         o.payment_method,
         o.total_amount_usd,
-        coalesce(oi.item_count, 0)                 as item_count,
-        coalesce(oi.items_subtotal_usd, 0)         as items_subtotal_usd,
+        coalesce(oi.item_count, 0)         as item_count,
+        coalesce(oi.items_subtotal_usd, 0) as items_subtotal_usd,
         d.delivery_status,
         d.delivery_duration_min,
-        d.distance_km
+        d.distance_km,
+        cast(o.ordered_at as date)         as order_date,
+        o.ordered_at
+
     from orders o
     left join order_items oi on o.order_id = oi.order_id
     left join deliveries d   on o.order_id = d.order_id

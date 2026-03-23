@@ -23,8 +23,8 @@ final as (
         r.cuisine_type,
         r.city,
         r.rating,
-        r.opened_date,
         r.is_active,
+        r.opened_date,
         coalesce(o.total_orders, 0)                                                as total_orders,
         coalesce(o.total_revenue_usd, 0)                                           as total_revenue_usd,
         coalesce(o.total_revenue_usd, 0) >= 2500                                   as is_top_performer

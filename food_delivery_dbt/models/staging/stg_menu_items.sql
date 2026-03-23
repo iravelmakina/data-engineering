@@ -1,14 +1,14 @@
 with source as (
 
-    select * from {{ ref('raw_menu_items') }}
+    select * from {{ source('raw', 'raw_menu_items') }}
 
 ),
 
 renamed as (
 
     select
-        menu_item_id,
-        restaurant_id,
+        cast(menu_item_id as string)           as menu_item_id,
+        cast(restaurant_id as string)          as restaurant_id,
         {{ standardize_text('item_name') }}    as item_name,
         {{ standardize_text('category') }}     as category,
         cast(price_usd as decimal(10, 2))      as price_usd,
