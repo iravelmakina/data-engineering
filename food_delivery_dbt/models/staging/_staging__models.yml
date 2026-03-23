@@ -1,0 +1,115 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Cleaned customer dimension. One row per platform user."
+    columns:
+      - name: customer_id
+        description: "Unique platform user identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: email
+        description: "Lowercased, trimmed email address."
+      - name: signup_date
+        description: "Date the customer first registered on the platform."
+
+  - name: stg_restaurants
+    description: "Cleaned restaurant dimension. One row per restaurant."
+    columns:
+      - name: restaurant_id
+        data_tests:
+          - unique
+          - not_null
+      - name: cuisine_type
+        description: "Standardised cuisine category (lowercase)."
+      - name: is_active
+        data_tests:
+          - not_null
+
+  - name: stg_menu_items
+    description: "Cleaned menu items. Each item belongs to one restaurant."
+    columns:
+      - name: menu_item_id
+        data_tests:
+          - unique
+          - not_null
+      - name: restaurant_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_restaurants')
+              field: restaurant_id
+      - name: category
+        data_tests:
+          - accepted_values:
+              values: ['appetizer', 'main', 'dessert', 'drink', 'side']
+
+  - name: stg_orders
+    description: "Cleaned order headers. One row per placed order."
+    columns:
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: restaurant_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_restaurants')
+              field: restaurant_id
+      - name: status
+        data_tests:
+          - accepted_values:
+              values: ['placed', 'preparing', 'delivered', 'cancelled']
+      - name: order_timestamp
+        data_tests:
+          - not_null
+
+  - name: stg_order_items
+    description: "Cleaned order line items. Many-to-one with orders and menu_items."
+    columns:
+      - name: order_item_id
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: menu_item_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_menu_items')
+              field: menu_item_id
+      - name: quantity
+        data_tests:
+          - not_null
+
+  - name: stg_deliveries
+    description: "Cleaned delivery records. One row per non-cancelled order."
+    columns:
+      - name: delivery_id
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: delivery_status
+        data_tests:
+          - accepted_values:
+              values: ['picked_up', 'in_transit', 'delivered', 'failed']
