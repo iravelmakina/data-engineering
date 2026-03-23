@@ -10,7 +10,7 @@ with menu_item_daily_sales as (
 
     select
         menu_item_id,
-        cast(order_date as date) as order_date,
+        cast(ordered_at as date) as order_date,
         sum(line_total_usd) as daily_sales_usd
     from {{ ref('fct_order_items') }}
     group by menu_item_id, 2

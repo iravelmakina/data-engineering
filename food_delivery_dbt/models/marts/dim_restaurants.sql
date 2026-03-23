@@ -18,18 +18,18 @@ orders_agg as (
 final as (
 
     select
-        r.restaurant_id,
-        r.restaurant_name,
-        r.cuisine_type,
-        r.city,
-        r.rating,
-        r.is_active,
-        r.opened_date,
-        coalesce(o.total_orders, 0)                                                as total_orders,
-        coalesce(o.total_revenue_usd, 0)                                           as total_revenue_usd,
-        coalesce(o.total_revenue_usd, 0) >= 2500                                   as is_top_performer
-    from restaurants r
-    left join orders_agg o on r.restaurant_id = o.restaurant_id
+        restaurants.restaurant_id,
+        restaurants.restaurant_name,
+        restaurants.cuisine_type,
+        restaurants.city,
+        restaurants.rating,
+        coalesce(orders_agg.total_orders, 0)                       as total_orders,
+        coalesce(orders_agg.total_revenue_usd, 0)                  as total_revenue_usd,
+        restaurants.is_active,
+        coalesce(orders_agg.total_revenue_usd, 0) >= 2500          as is_top_performer,
+        restaurants.opened_date
+    from restaurants
+    left join orders_agg on restaurants.restaurant_id = orders_agg.restaurant_id
 
 )
 

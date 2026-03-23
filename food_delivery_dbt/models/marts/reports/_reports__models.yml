@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: rpt_customer_30_day_avg_spend
+  - name: rpt_customer_30_day_average_spend
     description: "Calculates the 30-day rolling average spend for each customer."
     columns:
       - name: customer_id
@@ -18,7 +18,7 @@ models:
       - name: daily_spend_usd
         data_tests:
           - not_null
-      - name: rolling_30_day_avg_spend_usd
+      - name: rolling_30_day_average_spend_usd
         data_tests:
           - not_null
 
@@ -43,7 +43,7 @@ models:
         data_tests:
           - not_null
 
-  - name: rpt_courier_avg_delivery_time
+  - name: rpt_courier_average_delivery_time
     description: "Evaluates courier efficiency by comparing daily average delivery time to overall average."
     columns:
       - name: courier_id
@@ -60,10 +60,10 @@ models:
       - name: total_deliveries
         data_tests:
           - not_null
-      - name: avg_delivery_duration_min
+      - name: average_delivery_duration_min
         data_tests:
           - not_null
-      - name: diff_from_overall_avg_min
+      - name: difference_from_overall_average_min
         data_tests:
           - not_null
 

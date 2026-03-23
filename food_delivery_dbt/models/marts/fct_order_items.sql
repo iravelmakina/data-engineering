@@ -6,12 +6,6 @@
     )
 }}
 
-{#
-    This model is incrementally loaded based on new order_item_ids.
-    We join to stg_orders to enrich the line item data with order-level details.
-    The incremental filter is applied to stg_order_items to ensure all new line items are captured.
-#}
-
 with new_order_items as (
 
     select *
@@ -40,7 +34,7 @@ orders as (
 
 ),
 
-menu as (
+menu_items as (
 
     select
         menu_item_id,
@@ -53,21 +47,21 @@ menu as (
 final as (
 
     select
-        noi.order_item_id,
-        noi.order_id,
-        o.customer_id,
-        o.restaurant_id,
-        noi.menu_item_id,
-        m.item_name,
-        m.category,
-        noi.quantity,
-        noi.unit_price_usd,
-        noi.line_total_usd,
-        o.status as order_status,
-        o.ordered_at
-    from new_order_items noi
-    join orders o on noi.order_id = o.order_id
-    left join menu m    on noi.menu_item_id = m.menu_item_id
+        new_order_items.order_item_id,
+        new_order_items.order_id,
+        orders.customer_id,
+        orders.restaurant_id,
+        new_order_items.menu_item_id,
+        menu_items.item_name,
+        menu_items.category,
+        orders.status as order_status,
+        new_order_items.quantity,
+        new_order_items.unit_price_usd,
+        new_order_items.line_total_usd,
+        orders.ordered_at
+    from new_order_items
+    join orders      on new_order_items.order_id = orders.order_id
+    left join menu_items on new_order_items.menu_item_id = menu_items.menu_item_id
 
 )
 

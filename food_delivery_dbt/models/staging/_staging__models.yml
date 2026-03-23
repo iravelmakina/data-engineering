@@ -82,6 +82,9 @@ models:
         description: "Timestamp when the order was placed."
         data_tests:
           - not_null
+      - name: payment_method
+        data_tests:
+          - not_null
 
   - name: stg_order_items
     description: "Cleaned order line items. Many-to-one with orders and menu_items."

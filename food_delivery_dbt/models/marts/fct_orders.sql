@@ -43,23 +43,23 @@ deliveries as (
 final as (
 
     select
-        o.order_id,
-        o.customer_id,
-        o.restaurant_id,
-        o.status,
-        o.payment_method,
-        o.total_amount_usd,
-        coalesce(oi.item_count, 0)         as item_count,
-        coalesce(oi.items_subtotal_usd, 0) as items_subtotal_usd,
-        d.delivery_status,
-        d.delivery_duration_min,
-        d.distance_km,
-        cast(o.ordered_at as date)         as order_date,
-        o.ordered_at
+        orders.order_id,
+        orders.customer_id,
+        orders.restaurant_id,
+        orders.status,
+        orders.payment_method,
+        deliveries.delivery_status,
+        orders.total_amount_usd,
+        coalesce(order_items.item_count, 0)         as item_count,
+        coalesce(order_items.items_subtotal_usd, 0) as items_subtotal_usd,
+        deliveries.delivery_duration_min,
+        deliveries.distance_km,
+        cast(orders.ordered_at as date)             as order_date,
+        orders.ordered_at
 
-    from orders o
-    left join order_items oi on o.order_id = oi.order_id
-    left join deliveries d   on o.order_id = d.order_id
+    from orders
+    left join order_items on orders.order_id = order_items.order_id
+    left join deliveries  on orders.order_id = deliveries.order_id
 
 )
 

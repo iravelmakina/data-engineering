@@ -16,12 +16,12 @@ calculated_revenue as (
 
 final as (
     select
-        r.restaurant_id,
-        r.is_top_performer,
-        coalesce(cr.total_revenue_usd, 0) as calculated_total_revenue_usd,
-        (coalesce(cr.total_revenue_usd, 0) >= 2500) as expected_is_top_performer
-    from restaurants r
-    left join calculated_revenue cr on r.restaurant_id = cr.restaurant_id
+        restaurants.restaurant_id,
+        restaurants.is_top_performer,
+        coalesce(calculated_revenue.total_revenue_usd, 0)         as calculated_total_revenue_usd,
+        (coalesce(calculated_revenue.total_revenue_usd, 0) >= 2500) as expected_is_top_performer
+    from restaurants
+    left join calculated_revenue on restaurants.restaurant_id = calculated_revenue.restaurant_id
 )
 
 select

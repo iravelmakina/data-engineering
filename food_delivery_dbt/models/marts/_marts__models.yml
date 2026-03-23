@@ -27,8 +27,7 @@ models:
       - name: cuisine_type
         data_tests:
           - not_null
-      - name: is_top_performer
-        description: "True when total_revenue_usd >= 2500 across delivered orders."
+      - name: is_active
         data_tests:
           - not_null
 
@@ -101,7 +100,7 @@ models:
           - not_null
 
   - name: fct_order_items
-    description: "Fact table for individual order line items, enriched with order and menu item details. Incremental load based on order_item_id."
+    description: "Fact table for individual order line items, enriched with order and menu item details. Incremental load based on order_item_id to avoid late-arriving data issues."
     columns:
       - name: order_item_id
         description: "Unique order item identifier (Cast to STRING)."
@@ -145,6 +144,7 @@ models:
                 to: ref('fct_orders')
                 field: order_id
       - name: courier_id
+        description: "Courier surrogate key."
         data_tests:
           - not_null
           - relationships:
@@ -166,7 +166,7 @@ models:
           - not_null
 
   - name: fct_daily_revenue
-    description: "Daily aggregated revenue, including running totals. Uses delete+insert with a 7-day lookback."
+    description: "Daily aggregated revenue, including running totals. Uses delete+insert with a 7-day lookback for late-arriving data."
     columns:
       - name: revenue_date
         data_tests:

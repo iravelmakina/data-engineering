@@ -19,8 +19,8 @@ courier_agg as (
         courier_name,
         max(courier_phone_number)                                    as courier_phone_number,
         count(*)                                                     as total_deliveries,
-        avg(distance_km)                                             as avg_distance_km,
-        avg(delivery_duration_min)                                   as avg_duration_min,
+        avg(distance_km)                                             as average_distance_km,
+        avg(delivery_duration_min)                                   as average_duration_min,
         sum(case when delivery_status = 'failed' then 1 else 0 end)  as failed_deliveries
     from deliveries
     group by courier_id, courier_name
@@ -35,8 +35,8 @@ final as (
         courier_phone_number,
         failed_deliveries,
         total_deliveries,
-        cast(avg_distance_km as decimal(6, 2))                            as avg_distance_km,
-        cast(avg_duration_min as decimal(6, 2))                           as avg_duration_min,
+        cast(average_distance_km as decimal(6, 2))                        as average_distance_km,
+        cast(average_duration_min as decimal(6, 2))                       as average_duration_min,
         cast(failed_deliveries * 1.0 / total_deliveries as decimal(5, 4)) as failure_rate
     from courier_agg
 

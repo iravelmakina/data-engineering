@@ -1,4 +1,4 @@
-with items as (
+with menu_items as (
 
     select * from {{ ref('stg_menu_items') }}
 
@@ -18,16 +18,16 @@ sales as (
 final as (
 
     select
-        i.menu_item_id,
-        i.restaurant_id,
-        i.item_name,
-        i.category,
-        i.price_usd,
-        i.is_available,
-        coalesce(s.total_quantity_sold, 0)  as total_quantity_sold,
-        coalesce(s.total_revenue_usd, 0)    as total_revenue_usd
-    from items i
-    left join sales s on i.menu_item_id = s.menu_item_id
+        menu_items.menu_item_id,
+        menu_items.restaurant_id,
+        menu_items.item_name,
+        menu_items.category,
+        menu_items.price_usd,
+        coalesce(sales.total_quantity_sold, 0)  as total_quantity_sold,
+        coalesce(sales.total_revenue_usd, 0)    as total_revenue_usd,
+        menu_items.is_available
+    from menu_items
+    left join sales on menu_items.menu_item_id = sales.menu_item_id
 
 )
 
