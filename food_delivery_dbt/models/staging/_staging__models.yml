@@ -38,12 +38,14 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_restaurants')
-              field: restaurant_id
+              arguments:
+                to: ref('stg_restaurants')
+                field: restaurant_id
       - name: category
         data_tests:
           - accepted_values:
-              values: ['appetizer', 'main', 'dessert', 'drink', 'side']
+              arguments:
+                values: ['appetizer', 'main', 'dessert', 'drink', 'side']
 
   - name: stg_orders
     description: "Cleaned order headers. One row per placed order."
@@ -56,18 +58,21 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_customers')
-              field: customer_id
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
       - name: restaurant_id
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_restaurants')
-              field: restaurant_id
+              arguments:
+                to: ref('stg_restaurants')
+                field: restaurant_id
       - name: status
         data_tests:
           - accepted_values:
-              values: ['placed', 'preparing', 'delivered', 'cancelled']
+              arguments:
+                values: ['placed', 'preparing', 'delivered', 'cancelled']
       - name: order_timestamp
         data_tests:
           - not_null
@@ -83,14 +88,16 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_orders')
-              field: order_id
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
       - name: menu_item_id
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_menu_items')
-              field: menu_item_id
+              arguments:
+                to: ref('stg_menu_items')
+                field: menu_item_id
       - name: quantity
         data_tests:
           - not_null
@@ -107,9 +114,11 @@ models:
           - unique
           - not_null
           - relationships:
-              to: ref('stg_orders')
-              field: order_id
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
       - name: delivery_status
         data_tests:
           - accepted_values:
-              values: ['picked_up', 'in_transit', 'delivered', 'failed']
+              arguments:
+                values: ['picked_up', 'in_transit', 'delivered', 'failed']

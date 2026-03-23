@@ -44,7 +44,7 @@ models:
           - relationships:
               arguments:
                 to: ref('dim_restaurants')
-              field: restaurant_id
+                field: restaurant_id
       - name: total_quantity_sold
         data_tests:
           - not_null
@@ -77,14 +77,14 @@ models:
           - relationships:
               arguments:
                 to: ref('dim_customers')
-              field: customer_id
+                field: customer_id
       - name: restaurant_id
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_restaurants')
-              field: restaurant_id
+                field: restaurant_id
       - name: order_timestamp
         data_tests:
           - not_null
@@ -105,14 +105,14 @@ models:
           - relationships:
               arguments:
                 to: ref('fct_orders')
-              field: order_id
+                field: order_id
       - name: menu_item_id
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_menu_items')
-              field: menu_item_id
+                field: menu_item_id
       - name: quantity
         data_tests:
           - not_null
@@ -133,14 +133,14 @@ models:
           - relationships:
               arguments:
                 to: ref('fct_orders')
-              field: order_id
+                field: order_id
       - name: courier_id
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_couriers')
-              field: courier_id
+                field: courier_id
       - name: delivery_timestamp
         data_tests:
           - not_null
@@ -177,7 +177,7 @@ models:
           - relationships:
               arguments:
                 to: ref('dim_restaurants')
-              field: restaurant_id
+                field: restaurant_id
       - name: revenue_date
         data_tests:
           - not_null

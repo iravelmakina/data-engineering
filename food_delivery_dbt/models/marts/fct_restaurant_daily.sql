@@ -3,8 +3,10 @@
         materialized='incremental',
         unique_key=['restaurant_id', 'revenue_date'],
         on_schema_change='fail',
-        incremental_strategy='merge',
-        incremental_predicates=["DBT_INTERNAL_DEST.revenue_date >= (select min(revenue_date) from " ~ ref('fct_orders') ~ " where order_date >= current_date - interval '1 week')"]
+        incremental_strategy='delete+insert',
+        incremental_predicates=[
+            "DBT_INCREMENTAL_TARGET.revenue_date >= current_date - interval '7 days'"
+        ]
     )
 }}
 
@@ -28,9 +30,11 @@ final as (
     from restaurant_daily_orders
 
     {% if is_incremental() %}
-        where order_date > (
-            select coalesce(max(revenue_date), '1900-01-01'::date) from {{ this }}
-        )
+        -- Reprocess the last 7 days on every run so late-arriving orders
+        -- get folded into the aggregate. Older days stay frozen.
+        -- The matching incremental_predicates in the config ensure the
+        -- destination DELETE only scans the same 7-day window.
+        where order_date >= current_date - interval '7 days'
     {% endif %}
 
 )
