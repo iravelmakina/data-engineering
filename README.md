@@ -250,15 +250,17 @@ The chosen business domain is a **food-delivery marketplace** that connects cust
 - `dbt-duckdb` 1.10+
 - (Optional) DuckDB CLI for ad-hoc queries: `brew install duckdb`
 
-### 1. Create virtual environment and install dbt
+### 1. Create virtual environment and install dependencies
 ```bash
 cd food_delivery_dbt
 python3.13 -m venv .venv
 source .venv/bin/activate
-pip install dbt-duckdb
+pip install -r requirements.txt
 ```
+Installs `dbt-duckdb` (pipeline runtime) and `faker` (only needed if you regenerate seeds in step 2).
 
 ### 2. (Optional) Regenerate seed CSVs
+The 6 raw CSVs are committed under `seeds/`, so fresh clones can skip this step and go straight to `dbt build`. Run it only if you want to reproduce or modify the synthetic dataset:
 ```bash
 python seed_generator.py
 ```
