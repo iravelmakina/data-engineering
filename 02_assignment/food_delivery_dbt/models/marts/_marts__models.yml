@@ -1,0 +1,197 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer dimension enriched with lifetime order metrics."
+    columns:
+      - name: customer_id
+        description: "Primary key. Unique platform user identifier (Cast to STRING)."
+        data_tests:
+          - unique
+          - not_null
+      - name: total_orders
+        description: "Lifetime count of orders placed by this customer (any status)."
+        data_tests:
+          - not_null
+      - name: lifetime_revenue_usd
+        description: "Sum of total_amount_usd for delivered orders only."
+
+  - name: dim_restaurants
+    description: "Restaurant dimension enriched with order volume and revenue."
+    columns:
+      - name: restaurant_id
+        description: "Unique restaurant identifier (Cast to STRING)."
+        data_tests:
+          - unique
+          - not_null
+      - name: cuisine_type
+        data_tests:
+          - not_null
+      - name: is_active
+        data_tests:
+          - not_null
+
+  - name: dim_menu_items
+    description: "Menu item dimension enriched with quantity sold and revenue."
+    columns:
+      - name: menu_item_id
+        description: "Unique menu item identifier (Cast to STRING)."
+        data_tests:
+          - unique
+          - not_null
+      - name: restaurant_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_restaurants')
+                field: restaurant_id
+      - name: total_quantity_sold
+        data_tests:
+          - not_null
+
+  - name: dim_couriers
+    description: "Courier dimension. Surrogate key derived from courier_name (no ID in source)."
+    columns:
+      - name: courier_id
+        description: "md5(courier_name) - stable surrogate key (Cast to STRING)."
+        data_tests:
+          - unique
+          - not_null
+      - name: courier_name
+        data_tests:
+          - unique
+          - not_null
+      - name: failure_rate
+        description: "Share of deliveries with delivery_status = 'failed'."
+
+  - name: fct_orders
+    description: "Fact table for individual orders, enriched with customer, restaurant, and delivery details."
+    columns:
+      - name: order_id
+        description: "Unique order identifier (Cast to STRING)."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: restaurant_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_restaurants')
+                field: restaurant_id
+      - name: ordered_at
+        description: "Timestamp when the order was placed."
+        data_tests:
+          - not_null
+      - name: order_date
+        description: "Date of the order."
+        data_tests:
+          - not_null
+      - name: total_amount_usd
+        data_tests:
+          - not_null
+
+  - name: fct_order_items
+    description: "Fact table for individual order line items, enriched with order and menu item details. Incremental load based on order_item_id to avoid late-arriving data issues."
+    columns:
+      - name: order_item_id
+        description: "Unique order item identifier (Cast to STRING)."
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+      - name: menu_item_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_menu_items')
+                field: menu_item_id
+      - name: quantity
+        data_tests:
+          - not_null
+      - name: line_total_usd
+        data_tests:
+          - not_null
+
+  - name: fct_deliveries
+    description: "Fact table for deliveries, capturing delivery metrics."
+    columns:
+      - name: delivery_id
+        description: "Unique delivery identifier (Cast to STRING)."
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+      - name: courier_id
+        description: "Courier surrogate key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_couriers')
+                field: courier_id
+      - name: delivered_at
+        description: "Timestamp when the order was delivered."
+        data_tests:
+          - not_null
+      - name: delivery_status
+        data_tests:
+          - not_null
+      - name: delivery_duration_min
+        data_tests:
+          - not_null
+      - name: distance_km
+        data_tests:
+          - not_null
+
+  - name: fct_daily_revenue
+    description: "Daily aggregated revenue, including running totals. Uses delete+insert with a 7-day lookback for late-arriving data."
+    columns:
+      - name: revenue_date
+        data_tests:
+          - unique
+          - not_null
+      - name: daily_revenue_usd
+        data_tests:
+          - not_null
+      - name: running_total_revenue_usd
+        data_tests:
+          - not_null
+
+  - name: fct_restaurant_daily
+    description: "Daily aggregated revenue per restaurant. Uses delete+insert with a 7-day lookback and predicate."
+    columns:
+      - name: restaurant_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_restaurants')
+                field: restaurant_id
+      - name: revenue_date
+        data_tests:
+          - not_null
+      - name: daily_revenue_usd
+        data_tests:
+          - not_null
