@@ -1,7 +1,0 @@
-food_delivery_dbt:
-  target: dev
-  outputs:
-    dev:
-      type: duckdb
-      path: "food_delivery.duckdb"
-      threads: 4
