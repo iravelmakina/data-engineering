@@ -1,0 +1,26 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw seed data loaded directly from CSV files into the main_raw schema."
+    database: "{{ env_var('DB_DATABASE', target.database) }}"
+    schema: "main_raw"
+    tables:
+      - name: raw_customers
+        identifier: raw_customers
+        description: "Raw customer data from CSV."
+      - name: raw_restaurants
+        identifier: raw_restaurants
+        description: "Raw restaurant data from CSV."
+      - name: raw_menu_items
+        identifier: raw_menu_items
+        description: "Raw menu item data from CSV."
+      - name: raw_orders
+        identifier: raw_orders
+        description: "Raw order header data from CSV."
+      - name: raw_order_items
+        identifier: raw_order_items
+        description: "Raw order line item data from CSV."
+      - name: raw_deliveries
+        identifier: raw_deliveries
+        description: "Raw delivery data from CSV."
